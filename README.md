@@ -1,10 +1,11 @@
-About this Workshop
+[**About this Workshop**](https://teamtreehouse.com/library/user-authentication-in-spring)
+
 In this workshop, we'll discuss how to get up and running with user authentication and authorization using Spring Security. 
 We'll be storing user data, including names and passwords, in a database. Our Spring MVC app connects to the database 
 using Hibernate. By the end of this course, you will have added user authentication to a simple task management 
 application, allowing users to login, create new tasks, and mark & unmark them as complete.
  
-[Introduction](https://teamtreehouse.com/library/user-authentication-in-spring)
+[**Introduction**](https://teamtreehouse.com/library/user-authentication-in-spring)
 
 In this intro, you'll hear what this workshop is all about!
 Authentication in general is the process of an app confirming the identification of a client. The client will be user in 
@@ -31,13 +32,14 @@ atastore for contacts given a certain email address as follows:
 
 
 For more on query method options, check the [Spring docs](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods)
+
 Git Command to Sync Your Code to the Start of this Video
 git checkout -f v2
  
 I decided to make the project from scratch since many of the Gradle external libraries are deprecated and the plugin 
 declaration is also different. The latest Gradle build plugins required different syntax. 
 
-[A First Look at Our Todo Project](https://teamtreehouse.com/library/a-first-look-at-our-todo-project)
+[**A First Look at Our Todo Project**](https://teamtreehouse.com/library/a-first-look-at-our-todo-project)
 
 The notable portion of this step is that there are @Bean in the DataConfig.java that must be named specifically as 
 **entityManagerFactory** which the Springframework boot will seek this specific name.
@@ -75,3 +77,42 @@ data will be loaded into the database when we boot our app.
 
 Next we need to add [Spring boot starter security](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security/1.5.9.RELEASE)
 to our **build.gradle** dependencies. This is the main part of the authentication implementation.
+
+[**Users and Roles**](https://teamtreehouse.com/library/users-and-roles)
+
+
+To get up and running with user authentication, we'll need to store usernames and passwords, as well as permissions, 
+into our database. In Spring, we'll store this data into User and Role objects.
+
+1. Authentication involves verifying that a user is indeed who he or she claims to be.
+2. Typically this is done by checking a provided username and password against what is stored in the database.
+3. to manage authentication we'll adding a user entity to our app and this class will implement spring's user details 
+interface. 
+4. the user entity will encapsulate a user's username whether or not the account is enabled as well as a roll.
+5. the next term happens after authentication is authorization which checks the authenticated user's permissions to see
+if the user is allowed to access a requested resource or performs a requested action.
+6. to manage authorization we'll add a role entity.
+7. We might define one role for user, one role for user admin, and one role for app admin. These roles are meant to 
+grant different authorities or privillages to users. We then assign one or more roles to each user.
+8. For one more granular contol over authorities, we could create an entity that encapsulates specific authorities.
+
+Now that we already talk about the concept, we need to start building it: (Start with Entry 2)
+1. we begin by making an entity called **Role** class and we'll put it in the **com.mooracle.todolist.model** the steps
+are presented in the **com.mooracle.todolist.model.Role**
+2. after we build the **com.mooracle.todolist.model.Role** we then add to our role table by editing the **import.sql**
+3. Next we create in **com.mooracle.todolist.model** new Java class name it **User** then go there.
+
+
+
+**SQL Mistake**
+There is a mistake in the SQL INSERT statements for adding users at the end of this video. We catch this later in the 
+workshop, but in case you want the fix now, it's the role_id column name that's missing from the two statements. The two 
+INSERT statements should look as follows:
+
+-- Insert a couple users
+insert into user (username,enabled,password,role_id) values ('user',true,'password',1);
+insert into user (username,enabled,password,role_id) values ('user2',true,'password',1);
+
+NOTE: the import.sql in this project also denotes many ERRORS but if we boot run it, it does not shows errors. Maybe it
+is due to code style IDEA function.
+
