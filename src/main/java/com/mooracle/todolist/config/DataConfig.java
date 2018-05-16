@@ -22,7 +22,7 @@ public class DataConfig {
     @Autowired
     private Environment environment;//<- choose the springframework.core.env
 
-    @Bean
+    @Bean //this @Bean must be named entityManagerFactory by the weaver, the system will seek specifically this name!!
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 

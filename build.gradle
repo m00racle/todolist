@@ -32,6 +32,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-dbcp
     compile group: 'org.apache.tomcat', name: 'tomcat-dbcp', version: '8.5.20'
 
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '1.5.9.RELEASE'
+
+
     // https://mvnrepository.com/artifact/com.h2database/h2
     runtime group: 'com.h2database', name: 'h2', version: '1.4.196'
 
