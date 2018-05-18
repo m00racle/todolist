@@ -44,6 +44,17 @@ public class User implements UserDetails {//4-6: UserDetails is Spring security 
         return authorities;
     }
 
+    /** Entry 18: Adding getter and setter for id so that Spring security can use it (fetch it) to authorized proper tasks
+     *      just use alt+insert and choose Long id.
+     * */
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     @Override
     public String getPassword() {
         return password; //4-12: we got password field
