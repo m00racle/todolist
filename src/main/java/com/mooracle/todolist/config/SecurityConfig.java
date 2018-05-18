@@ -15,6 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -40,7 +42,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //... to make user service that we @Autowired into this class. Oh also please throws Exception since ...
         //... UserDetailsService method potentially throws standard exception
 
-        auth.userDetailsService(userService);
+        auth.userDetailsService(userService).passwordEncoder(passwordEncoder());//20-2: add password encoder to global config
+    }
+
+    /** Entry 20: Encrypting the password data
+     *  1.  We will make password encoder @Bean
+     *  */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10);//20-1: encryption with strength level 10
     }
 
     //8-6: use alt+insert to access override and choose configure(WebSecurity web) to bypass some security checks:
