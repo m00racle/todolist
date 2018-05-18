@@ -1,8 +1,11 @@
 package com.mooracle.todolist.web.controller;
 
 import com.mooracle.todolist.model.Task;
+import com.mooracle.todolist.model.User;
 import com.mooracle.todolist.service.TaskService;
+import com.mooracle.todolist.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,7 +17,7 @@ import java.security.Principal;
 
 /** ENTRY LIST:
  *  Entry 10: Integrating User Data into Our App
- *
+ *  Entry 19: Associating saving task with user
  * */
 
 @Controller
@@ -23,6 +26,9 @@ public class TaskController {
     //initialize Service
     @Autowired
     private TaskService taskService;
+
+    /*@Autowired
+    private UserService userService; //19-2a: @Autowired UserService to fetch user (deprecated by 19-2b)*/
 
     /** 10-1: for the taskList method:
      *   in here we will include a security principal argument, and this principal object is one that will be...
@@ -49,8 +55,24 @@ public class TaskController {
         return "redirect:/";
     }
 
+    /** Entry 19: Associating task with user before saving
+     *  1.  We'll add a principal parameter whose value will be populated with the username passsword authentication
+     *      token object, which implemented the principal interface
+     *  2.  there are two ways to get user entity:
+     *      a.  fetchiing the username from the principal then using the user service to grab the user entity by its
+     *          user name. But make sure to @Autowired UserService
+     *          NOTE: this userService.findByUserName will hit the database which honestly will not be so significant
+     *      b.  If you don't want to hit the database we can run quick test with output to see whether the principal
+     *          parameter is populated with username and password token object. We will need to cast the principle to
+     *          UsernamePasswordAuthentication token object.*/
     @RequestMapping(path = "/tasks", method = RequestMethod.POST)
-    public String addTask(@ModelAttribute Task task){
+    public String addTask(@ModelAttribute Task task, Principal principal){
+        /*It is substituted with 19-2b:
+        User user = userService.findByUsername(principal.getName());//19-2: getting the user name logged in
+        task.setUser(user);//19-2: set the user to be associated with the task*/
+
+        User user = (User)((UsernamePasswordAuthenticationToken)principal).getPrincipal();//19-2b: casting process
+        task.setUser(user);//19-2b: setting the user in a task
         taskService.save(task);
         return "redirect:/";
     }
