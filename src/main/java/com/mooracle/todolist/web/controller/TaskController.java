@@ -25,14 +25,16 @@ public class TaskController {
     private TaskService taskService;
 
     /** 10-1: for the taskList method:
-    *      in here we will include a security principal argument, and this principal object is one that will be...
-    *      injected as a parameter value and encapsulate all authentication data.This will be username password ...
-    *      authentication token object
+     *   in here we will include a security principal argument, and this principal object is one that will be...
+     *      injected as a parameter value and encapsulate all authentication data.This will be username password ...
+     *      authentication token object.
      *      we will using more indirect approach to set the username password data to authorized by using Thymeleaf
-     *      dialect add ons but this require more config. Spring security dialect.
-    * */
+     *      dialect add ons but this require more config. Spring security dialect. Thus we actually do not need this
+     *      Controller to be modified
+     *
+     * */
     @RequestMapping({"/", "/todo"})
-    public String taskList(Model model, Principal principal) {//add Principal argument
+    public String taskList(Model model) {//delete the Principal argument
 
         Iterable<Task> tasks = taskService.findAll();
         model.addAttribute("tasks", tasks);
