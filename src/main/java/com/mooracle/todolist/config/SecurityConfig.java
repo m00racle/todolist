@@ -64,6 +64,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     //8-9: use alt+insert to override configure(HttpSecurity) to define which things need authorization
 
+    /** Entry 22: Adding CSRF protection
+     *  1.  After the logout config in the Security filter chain we add and CSRF protection
+     * */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //8-10: we will configure security for authorizing our users requests to their to do list, ...
@@ -89,8 +92,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                 .logout()
                     .permitAll() //we don't need any authentication so just permit all
-                    .logoutSuccessHandler(logoutSuccess());
+                    .logoutSuccessHandler(logoutSuccess())
         //NOTE: we can use also the logoutSucessHandler see Teacher's notes
+                //22-1 we add csrf protection:
+                    .and()
+                .csrf();//22-1: this is csrf protection.
     }
 
     //8-15: making the success handler method:
