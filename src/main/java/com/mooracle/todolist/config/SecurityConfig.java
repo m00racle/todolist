@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 /** ENTRY LIST
  *  ENTRY 8: Turning On Spring Security with Java Config
@@ -72,7 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                 .logout()
                     .permitAll() //we don't need any authentication so just permit all
-                    .logoutSuccessUrl("/login");
+                    .logoutSuccessHandler(logoutSuccess());
         //NOTE: we can use also the logoutSucessHandler see Teacher's notes
     }
 
@@ -91,5 +92,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     FlashMessage.Status.FAILURE)); //the name "flash" is woven in the html template
             response.sendRedirect("/login"); //back to login but we need to add flash message
         } ;
+    }
+
+    public LogoutSuccessHandler logoutSuccess() {
+        //8-20: this is new addition to use logout handler method, it's similar with login failure handler
+        return (request, response, authentication) -> {
+            request.getSession().setAttribute("flash", new FlashMessage("Logout Successfully",
+                    FlashMessage.Status.SUCCESS));
+            response.sendRedirect("/login");
+        };
     }
 }
