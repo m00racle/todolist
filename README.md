@@ -105,6 +105,7 @@ are presented in the **com.mooracle.todolist.model.Role**
 
 
 **SQL Mistake**
+
 There is a mistake in the SQL INSERT statements for adding users at the end of this video. We catch this later in the 
 workshop, but in case you want the fix now, it's the role_id column name that's missing from the two statements. The two 
 INSERT statements should look as follows:
@@ -116,3 +117,173 @@ insert into user (username,enabled,password,role_id) values ('user2',true,'passw
 NOTE: the import.sql in this project also denotes many ERRORS but if we boot run it, it does not shows errors. Maybe it
 is due to code style IDEA function.
 
+[**Implementing a UserDetailsService**](https://teamtreehouse.com/library/implementing-a-userdetailsservice)
+
+Connecting Spring Security to user data can be accomplished through several means. In this workshop, we'll take the 
+approach of implementing a UserDetailsService, which will supply Spring Security with authentication and authorization 
+data.
+
+The next order of business is to integrate Spring Secirity with our user and role entities. In generan what we'll need 
+to do is to implement UserDetailService interface. Specifically we want to implement the loadByUsername method which 
+locate the user based on the username. [more on UserDetailsService](https://docs.spring.io/spring-security/site/docs/4.2.4.RELEASE/apidocs/org/springframework/security/core/userdetails/UserDetailsService.html)
+
+When we implement this method we'll call upon our UserDao (we have not written it yet) to grab the user entity from the
+database via hibernate and use it as the method return value. Okay leths start coding:
+1. Entry 5: create **UserService** interface inside the **com.mooracle.todolist.service** package and go there.
+2. Entry 6: create **UserServiceImpl** Class as implementation of Entry 5 in **com.mooracle.todolist.service**
+3. Entry 7: create **userDao** interface inside **com.mooracle.todolist.dao** this is interchangeable with Entry 6 above
+Note: this only required us to code short syntax and the rest already included inside the CrudRepository extension. when
+we boot up the app Spring will automatically build the class implementing this UserDao interface.
+4. That UserDao implememntation will includes findByUsername method which required String argument called username passed
+onto it. This mewthod will find a User in the database that has a username equals to whatever value passed in 
+5. Back to Entry 6: **UserServiceImpl** Class in **com.mooracle.todolist.service**
+
+Thus we finished building our Service and DAO layer. Next we add some application level configuration to the Spring app
+that switches on all of our Spring security functionality.
+
+[**Turning On Spring Security with Java Config**](https://teamtreehouse.com/library/turning-on-spring-security-with-java-config)
+
+In this video, we'll switch on security by adding a @Configuration class that specifies the details of which Spring 
+Security features we'd like to use.
+
+For more information about [Spring Security Filter Chain in Spring docs](http://docs.spring.io/spring-security/site/docs/current/guides/html5/form.html)
+
+To enable Spring Seciruty we need to add some configuration to our app. as with anything in Spring this can be done in 
+two ways:
+1. XML based config
+2. Java config approach
+To keep things neat and organized we will put all security config into a config class of its own. Thus:
+1. Entry 8: Inside **com.mooracle.todolist.config** package create new Java Class: **SecurityConfig** and go there
+2. Entry 9: goto **com.mooracle.todolist.web.controller.LoginController**
+
+**Sessions for Login Failures**
+
+I've demonstrated the use of session attributes to handle login failure messages, as opposed to using the standard in 
+examples you might see around the web. Examples typically show the use of a query string parameter in the URL, such as
+
+*/login?error=true*
+
+I don't like this approach because care must be taken so that **one cannot visit that URL directly** to reproduce the 
+flash message. Instead, I prefer to keep the URL clean, and rely on a session attribute to save the flash message. 
+Session attributes are server-stored values, and can even include rich objects. When session attributes are used, you'll 
+notice that a session cookie (usually called JSESSIONID) is set in the browser and passed with every request, so that the 
+server can pair the browsing session with the server-stored session data.
+
+If you choose this approach, be sure to clear the session attribute when it makes sense to do so. In our case, it makes 
+sense as soon as we add the flash message to the model map for display in the rendered template.
+
+**Session IDs and Cookies**
+
+When working with session data in web applications using Java or any other server-side language, it is best to 
+understand how your data might be compromised. Many applications match server-stored session data with browsing sessions 
+using some sort of session cookie. This value is stored in the browser, and when your application receives a request 
+that entails using that session ID for authentication or other session data, the application assumes the request 
+originated from the same place.
+
+But, what if your session ID cookie becomes compromised, whether through a browser vulnerability, or a non-HTTPS 
+(read: plaintext) request intercepted by an attacker? Remember, HTTP requests are sent as plaintext, and if they're 
+intercepted, they are directly readable by the attacker. Adding SSL encrypts all requests and responses in a way that 
+protects all data (including cookies) in a way that doesn't make it more difficult for an attacker to intercept your 
+requests or responses, but rather renders them unreadable since they're encrypted.
+
+In any case, check the Teacher's Notes of later videos for common web app vulnerabilities.
+
+[**Integrating User Data Into Our Application**](https://teamtreehouse.com/library/integrating-user-data-into-our-application)
+
+If an application requires a user to sign in, it makes sense that the data she or he sees is in some way customized. 
+In this video we'll make our tasks belong to specific users and discuss how the @Query annotation can be used to fetch 
+tasks belonging to the currently signed in user.
+
+Until this point we have configured our app to require authentication. Now it's time to integrate user specific data. 
+Now as preambule as our first exercise we will display the currently authenticated user in the nav bar of the app.
+
+One way to do this is by including a security principal argument in the controller method for the task list.:
+1. Entry 10: go to **com.mooracle.todolist.web.controller.TaskController**
+2. Entry 11: go to **build.gradle**
+3. Entry 12: go to **com.mooracle.todolist.config.TemplateConfig**
+4. Entry 13: go to **templates/layout.html**
+
+Alright, if the first task is done next job is to associate the username with the data. The main objective is each user
+will have its own data of to do list. We'll need to associate each task in the database with a user. Specifically we do 
+this using the userId column in the task table. Thus we need to define the join column between task and user entities: 
+1. Entry 14: goto **com.mooracle.todolist.model.Task**
+2. Entry 15: goto **com.mooracle.todolist.dao.TaskDao** to make sure taskDao is grabbing only the tasks associated with
+the currently authenticated use and not all tasks.
+3. Entry 16: goto **com.mooracle.todolist.config.SecurityConfig** to configure evaluation context extension to expose 
+authentication data.
+4. Entry 17: goto: **import.sql** to add some user specific task
+5. Entry 18: goto **com.mooracle.todolist.model.User** to add getter for the id so that Spring security can fetch it
+
+
+Spring Docs for [UsernamePasswordAuthenticationToken](http://docs.spring.io/autorepo/docs/spring-security/4.0.3.RELEASE/apidocs/org/springframework/security/authentication/UsernamePasswordAuthenticationToken.html)
+
+Hiding Thymeleaf Template Errors in IntelliJ
+If you don't have the Thymeleaf XML namespaces declared at the top of your HTML, IntelliJ will highlight unknown 
+namespaces/attributes. To hide these errors, do the following:
+1. In the IntelliJ menubar, go to Preferences
+2. Drill down to Editor, then Inspections, then XML
+3. Uncheck Unbound XML namespace prefix
+4. Uncheck Unknown HTML tag attribute
+
+more links:
+1. [Spring Security Thymeleaf Dialect](https://github.com/thymeleaf/thymeleaf-extras-springsecurity)
+2. [Spring Authentication Interface](http://docs.spring.io/autorepo/docs/spring-security/4.0.4.RELEASE/apidocs/org/springframework/security/core/Authentication.html)
+
+
+[**Final Touches and Security Considerations**](https://teamtreehouse.com/library/final-touches-and-security-considerations)
+
+In this video we add the ability to associate an added task with the currently signed in user. We also discuss the 
+importance of storing encrypted passwords and add a password encoder to our application. 
+
+If you inspect our code it allows users to add task. In the **com.mooracle.todolist.web.controller.TaskController** we 
+have **addTask** method. That method has a call to **com.mooracle.todolist.service.TaskService** which implemented in
+**com.mooracle.todolist.service.TaskServiceImpl** to save the added task using a POST request. That service layer then 
+calls the DAO layer interface **com.mooracle.todolist.dao.TaskDao** which extends the CRUD repository which makes the 
+save method hidden. However, in this case the saved new added task is not yet associated with the current logged user. 
+
+We need to have the user field populated in the task entity before saving. There are at least two methods of saving the
+task:
+1. Entry 19: goto **com.mooracle.todolist.web.controller.TaskController** 
+
+Now we started the discussion on Security. This is not meant to be exhaustive discussion about security since the topic
+is too big to cover in one course. What we are discussing here right now is implementing extra layer of security which
+is considered practical. 
+
+First thing first encrypting the password: We'll use BCrypt Password Hashing
+1. Entry 20: goto **com.mooracle.todolist.config.SecurityConfig**
+2. Entry 21: goto **import.sql** to change the password with hashed (encrypted) version
+
+Lastly we add CSRF (Cross Site request forgery) from the authenticated users. How we do this? One way is to stop any 
+GET request that changes the server state. As POST which is really ment to change the server state it will be added with
+CSRF protection.
+1. Entry 22: goto **com.mooracle.todolist.config.SecurityConfig** to add CSRF protection
+
+**NOTE**: one thing we have not yet talk about here is how to encode the password inputted manually by the user. We 
+expect them to put their own hash code when creating a password.
+
+**BCrypt Password Hashing**
+
+BCrypt is a hashing function that is based on the Blowfish cipher. It is designed to allow the ability to be iteratively 
+applied a specified number of times (referred to as the cost parameter). One advantage of this hash is that, 
+as processors get faster and servers have the ability to process more requests concurrently, the number of iterations 
+can be increased so that a "brute-force" attack can be slowed to the point of detection before the attack is successful.
+
+1. [https://en.wikipedia.org/wiki/Bcrypt](https://en.wikipedia.org/wiki/Bcrypt)
+2. [https://en.wikipedia.org/wiki/Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher))
+3. [BCryptPasswordEncoder](http://docs.spring.io/spring-security/site/docs/current/apidocs/org/springframework/security/crypto/bcrypt/BCryptPasswordEncoder.html)
+
+**Injecting User Data for Modifying Queries**
+
+If you want to inject user-specific data using the authentication object for INSERT statements, in the same way that we 
+did for SELECT statements, you'll need to use a native query. Here is an example of a Spring Data JPA interface method 
+that you could use:
+
+@Modifying
+
+@Transactional
+
+@Query(nativeQuery = true, value = "insert into task (user_id,description,complete) values 
+
+(:#{principal.id},:#{#task.description},:#{#task.complete})")
+
+void saveForCurrentUser(@Param("task") Task task);
