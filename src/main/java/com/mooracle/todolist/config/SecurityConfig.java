@@ -3,19 +3,25 @@ package com.mooracle.todolist.config;
 import com.mooracle.todolist.service.UserService;
 import com.mooracle.todolist.web.FlashMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.repository.query.spi.EvaluationContextExtension;
+import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
+import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 /** ENTRY LIST
  *  ENTRY 8: Turning On Spring Security with Java Config
- *
+ *  ENTRY 16: adding evaluation context extension
  *  */
 
 @Configuration //8-1: telling Spring this is a config to scan
@@ -100,6 +106,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             request.getSession().setAttribute("flash", new FlashMessage("Logout Successfully",
                     FlashMessage.Status.SUCCESS));
             response.sendRedirect("/login");
+        };
+    }
+
+    /** Entry 16:
+     *  we will use this just use it like this
+     * */
+    @Bean
+    public EvaluationContextExtension securityExtension() {
+        return new EvaluationContextExtensionSupport() {
+            @Override
+            public String getExtensionId() {
+                return "security";
+            }
+
+            @Override
+            public Object getRootObject() {
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                return new SecurityExpressionRoot(authentication) {
+                };
+            }
         };
     }
 }
