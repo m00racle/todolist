@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head" lang="en">
     <meta charset="UTF-8"/>
@@ -16,7 +17,9 @@
         <div class="nav-wrapper">
             <a href="#" class="brand-logo">TodoToday</a>
             <ul class="right">
-                <li sec:authentication="name"></li>
+                <li sec:authentication="name"></li><!--13-1: This is the sec:authentication (principal)-->
+                <!-- 13-2: this list will make username which rendered as "name" to be displayed. ALTHOUGH there are
+                            no controller pass the variable named "name" inside the model map-->
                 <li>
                     <form class="logout inline" th:action="@{/logout}" method="post">
                         <button type="submit"><i class="material-icons">power_settings_new</i></button>
